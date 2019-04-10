@@ -1,0 +1,134 @@
+  <!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>test</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+  </head>
+  <body>
+    <div id="app">
+      <div class="popup-add" v-for = "popup in popupList">
+        <div class="popup-BG"></div>
+        <div class="popup-box">
+          <div v-bind:style = "{ background: popup.background}" class="popup-header">
+            <div class="popup-headerContent">
+              <h1>Fill in the form to create a new Project!</h1>
+            </div>
+          </div>
+          <div class="popup-footer">
+            <div class="">
+              <input type="text" v-model="popup.title" name="" placeholder="Title...">
+              <input type="text" v-model="popup.date" name="" placeholder="Complete Date...">
+              <input type="text" v-model="popup.set" name="" placeholder="Set On...">
+            </div>
+            <div class="">
+              <textarea name="" rows="8" cols="80" placeholder="Description of Task"></textarea>
+            </div>
+            <button onclick="clickThis()" type="button" name="button"
+            v-bind:style = "{
+              background: popup.isHovering ? popup.background : popup.default,
+              color: popup.isHovering ? popup.textcolor : popup.textcolordefault
+            }"
+            @mouseover = "popup.isHovering = true"
+            @mouseleave = "popup.isHovering = false"
+          >Submit</button>
+          </div>
+        </div>
+      </div>
+      <div class="header">
+        <ul>
+          <li>To Do</li>
+          <li>Doing</li>
+          <li>Done</li>
+        </ul>
+        <button type="button" @click = "createPopUp()" class="create-button" name="button">+ Add</button>
+      </div>
+      <div class="main">
+        <div class="todo">
+          <div class="content-grid" v-for = "card in cardList">
+            <div class="grid-header" v-bind:style = "{ background: card.background}">
+              <h1>{{ card.title }}</h1>
+            </div>
+            <img class="profile-icon" v-bind:src="'assets/' + card.image" alt="profile-icon" width="70px" height="70px">
+            <div class="grid-footer">
+              <h3>{{ card.username }}</h3>
+              <p id="complete-footer">complete by: {{ card.completeDate }}</p>
+              <p id="postedOn">{{ card.postOn }}</p>
+              <button
+                class="footer-button"
+                type="button" name="button"
+                v-bind:style = "{
+                  background: card.isHovering ? card.background : card.default,
+                  color: card.isHovering ? card.textcolor : card.textcolordefault
+                }"
+                @mouseover = "card.isHovering = true"
+                @mouseleave = "card.isHovering = false"
+              >Finish</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+    //https://www.google.com/search?q=proofhub&safe=strict&client=firefox-b-d&source=lnms&tbm=isch&sa=X&ved=0ahUKEwjVvuSA1sLhAhVBSxUIHYceACAQ_AUIDygC&biw=2560&bih=1274#imgrc=NMB4sBR3t4TugM:
+      let socket = io();
+      socket.on('display card', function(card) {
+        app.cardList.push({
+          background: card.background,
+          isHovering: false,
+          textcolor: "white",
+          textcolordefault: "black",
+          default: "#f0f0f0",
+          title: card.title,
+          username: "Klaidas Predeinas",
+          completeDate: card.date,
+          postOn: "2 mins ago",
+          image: "profile-icon.png"
+        })
+      });
+
+      function clickThis() {
+        socket.emit("display card", {
+          background: app.popupList[0].background,
+          title: app.popupList[0].title,
+          date: app.popupList[0].date
+        })
+        app.popupList = [];
+      }
+
+      let colourArray = ["#545454", "#d14341", "#f0528f", "#279ceb", "#049d90"];
+
+      let app = new Vue({
+        el: '#app',
+        data: {
+          popupList: [
+
+          ],
+          cardList: [
+
+          ]
+        },
+        methods: {
+          createPopUp: function(){
+            return this.popupList.push({
+              background: colourArray [
+                Math.floor(Math.random() * ((colourArray.length - 1) - 0 + 1)) + 0
+              ],
+              isHovering: false,
+              textcolor: "white",
+              textcolordefault: "black",
+              default: "#f0f0f0",
+              title: "",
+              date: "",
+              set: ""
+            })
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
