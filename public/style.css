@@ -1,0 +1,236 @@
+body {
+  background-image: linear-gradient(to top, #3b8dff, #6400e0);
+  background-repeat: no-repeat;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Open Sans', sans-serif;
+  margin: 0px;
+  top: 0px;
+}
+
+.hide {
+  display: none;
+}
+
+/* Starting screen CSS */
+.startScreen {
+  position: absolute;
+  top: 25vh;
+  height: 50vh;
+  width: 100vw;
+  color: white;
+}
+
+.startScreen h1 {
+  position: relative;
+  font-size: 65px;
+  text-align: center;
+  top: 40px;
+}
+
+.startScreen button {
+  position: relative;
+  background-color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 30px;
+  padding: 10px 50px;
+  left: 110px;
+  box-shadow: 0 2px 6px 0 #323232, 0 4px 18px 0 #323232;
+}
+
+/* Menu Option screen CSS */
+.difficultyScreen {
+  color: white;
+  font-size: 25px;
+}
+
+.difficultyScreen h1 {
+  position: relative;
+  top: 10vh;
+  text-align: center;
+}
+
+.difficultyScreen button {
+  position: relative;
+  border-radius: 5px;
+  width: 80vw;
+  padding: 5px 0px;
+  font-size: 30px;
+  top: 20vh;
+  left: 10vw;
+  margin-top: 15px;
+}
+/* Question Screen CSS */
+.bg {
+  background-color: white;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0px;
+}
+
+.bg .gradient {
+  background-image: linear-gradient(to top, #3b8dff, #6400e0);
+  width: 100%;
+  height: 25%;
+}
+
+.timerContainer {
+  width: 90vw;
+  background-color: #dedede;
+  height: 10px;
+  position: absolute;
+  left: 5vw;
+  top: 15px;
+  border-radius: 5px;
+}
+
+.timer {
+  border-radius: 5px;
+  background-color: #3b8dff;
+  height: 100%;
+  width: 0%;
+}
+
+.question {
+  background-color: white;
+  box-shadow: 0 2px 4px 0 #323232, 0 2px 5px 0 #323232;
+  width: 80vw;
+  height: 25vh;
+  position: absolute;
+  top: 12.5vh;
+  left: 10vw;
+}
+
+.alarmIconContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.alarmIconContainer i {
+  font-size: 140px;
+}
+
+.question h4 {
+  position: absolute;
+  font-size: 15px;
+  margin: 0px;
+  left: 50%;
+  transform: translateX(-11px);
+  top: 5px;
+}
+
+.questionContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.question p {
+  font-size: 35px;
+}
+
+.answerContainer {
+  height: 46vh;
+  width: 80vw;
+  background-color: white;
+  position: absolute;
+  top: 40vh;
+  left: 10vw;
+}
+
+.q {
+  background-color: white;
+  box-shadow: 0 2px 4px 0 #323232, 0 2px 5px 0 #323232;
+  width: 100%;
+  height: 20%;
+  margin-bottom: 6%;
+  display: flex;
+  align-items: center;
+}
+
+.q p {
+  padding: 0px 0px 0px 30px;
+  margin: 0px;
+  font-size: 25px;
+}
+
+.nextContainer {
+  height: 9vh;
+  width: 80vw;
+  /* background-image: linear-gradient(to top, #3b8dff, #6400e0); */
+  box-shadow: 0 2px 4px 0 #323232, 0 2px 5px 0 #323232;
+  position: absolute;
+  top: 87vh;
+  left: 10vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nextContainer p {
+  /* color: black;
+  text-align: center; */
+  font-size: 25px;
+  /* position: relative;
+  top: -14px; */
+}
+
+/* End screen CSS */
+.mainContentScore {
+  position: absolute;
+  background-color: white;
+  width: 80vw;
+  height: 30vh;
+  left: 10vw;
+  top: 20vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  box-shadow: 0 2px 4px 0 #323232, 0 2px 5px 0 #323232;
+}
+
+.mainContentScore p {
+  font-size: 30px;
+}
+
+.backHomeContainer {
+  position: absolute;
+  width: 60vw;
+  height: 40px;
+  left: 20vw;
+  top: 55vh;
+}
+
+.backHomeContainer button {
+  box-shadow: 0 2px 4px 0 #323232, 0 2px 5px 0 #323232;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 20px;
+}
+
+.wellContainer {
+  width: 70vw;
+  height: 30vh;
+  position: absolute;
+  top: 65vh;
+  left: 15vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wellContainer i {
+  font-size: 150px;
+  color: white;
+}

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Math quiz</title>
+    <link rel="stylesheet" href="./public/style.css">
+    <link rel="stylesheet" type="text/css" href="https://csshake.surge.sh/csshake.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+  </head>
+  <body>
+    <div id="app">
+      <template v-if = "screenOpt === 'start'">
+        <div class="startScreen">
+          <h1>Math Quiz</h1>
+          <button v-on:click="start($event)" type="button" name="button">Start</button>
+        </div>
+      </template>
+      <template v-else-if = "screenOpt === 'difficulty'">
+        <div class="difficultyScreen">
+          <h1>Choose a level</h1>
+          <button v-on:click="difficulty($event, {timer: false, cooldown: 0})" type="button" name="button">Easy</button>
+          <button v-on:click="difficulty($event, {timer: true, cooldown: 20000})" type="button" name="button">Medium</button>
+          <button v-on:click="difficulty($event, {timer: true, cooldown: 10000})" type="button" name="button">Hard</button>
+        </div>
+      </template>
+      <template v-else-if = "screenOpt === 'question'">
+        <div class="questionScreen">
+          <div class="bg">
+            <div class="gradient"></div>
+            <div class="solid"></div>
+          </div>
+          <template v-if="timer === true">
+            <div v-on:click="startAnimation()" class="timerContainer">
+              <div class="timer"></div>
+            </div>
+          </template>
+          <div class="question">
+            <template v-if="timedOut === true">
+              <div class="alarmIconContainer">
+                <i class="material-icons">alarm</i>
+              </div>
+            </template>
+            <template v-else>
+              <h4>{{ questionNr }}/10</h4>
+              <div class="questionContainer">
+                <p>What is {{ numberOne }}{{ operator }}{{ numberTwo }}?</p>
+              </div>
+            </template>
+          </div>
+          <div class="answerContainer">
+            <div v-on:click="correctAnw($event, question)" class="q" v-for="question in questionList">
+              <p>{{ question.option }}{{ question.answer }}</p>
+            </div>
+          </div>
+          <div v-on:click="nextQuestion($event, question)" class="nextContainer">
+            <p>Next</p>
+          </div>
+        </div>
+      </template>
+      <template v-else-if = "screenOpt === 'end'">
+        <div class="mainContentScore">
+          <p>You got {{correctlyAnw}}/10</p>
+        </div>
+        <div class="backHomeContainer">
+          <button type="button" v-on:click="backHomeClick()" name="button">Back Home</button>
+        </div>
+        <div class="wellContainer">
+          <!-- <i class="material-icons">alarm</i> -->
+          <i class="fas fa-thumbs-up"></i>
+        </div>
+      </template>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.2.0/anime.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+      function shuffle(array) {
+        for (let count = array.length-1; count > 0; count--) {
+          let index = Math.floor(Math.random() * count);
+          let temp = array[count];
+          array[count] = array[index];
+          array[index] = temp;
+        }
+        return array;
+      }
+
+      let app = new Vue({
+        el: '#app',
+        data: {
+          screenOpt: "start",
+          timedOut: false,
+          questionNr: 1,
+          timer: true,
+          timerCooldown: 0,
+          numberOne: 0,
+          numberTwo: 0,
+          operator: "+",
+          answer: 0,
+          correctlyAnw: 0,
+          optionArray: [],
+          correctTotal: 0,
+          audio: {
+            correct: new Audio('./correct.mp3'),
+            incorrect: new Audio('./incorrect.wav')
+          },
+          alarmAnimation: anime({
+            targets: document.getElementsByClassName("material-icons"),
+            rotate: '1turn',
+            duration: 5000,
+            easing: "linear"
+          }),
+          questionList: [
+            {
+              option: "A. ",
+              answer: 0,
+              isCorrect: false
+            },{
+              option: "B. ",
+              answer: 0,
+              isCorrect: false
+            },{
+              option: "C. ",
+              answer: 0,
+              isCorrect: false
+            },{
+              option: "D. ",
+              answer: 0,
+              isCorrect: false
+            }
+          ]
+        },
+        mounted: function(){
+          console.log(this.alarmAnimation)
+        },
+        methods: {
+          start: function(event) {
+            this.screenOpt = "difficulty";
+          },
+          difficulty: function(event, data) {
+            this.screenOpt = "question";
+            this.timer = data.timer;
+            this.optionArray = [];
+            this.timerCooldown = data.cooldown;
+            this.rdnOperator();
+            this.question();
+
+            setTimeout( () => this.startAnimation(), 1);
+          },
+          question: function() {
+            this.generateRdnQuestion();
+            let answer = 0;
+            if (this.operator === "+") {
+              answer = this.numberOne + this.numberTwo;
+            }
+            if (this.operator === "-") {
+              answer = this.minusExlusive(this.numberOne - this.numberTwo);
+            }
+            if (this.operator === "÷") {
+              answer = this.divideNumberExclusive(this.numberOne / this.numberTwo);
+            }
+            if (this.operator === "×") {
+              answer = this.numberOne * this.numberTwo;
+            }
+
+            this.optionArray.push({answer: answer, isCorrect: true});
+            this.answer = answer.toString();
+
+            for (let loop = 0; loop < 3; loop++) {
+              temp = this.tempRdnNumberExclusive(answer, this.optionArray);
+              this.optionArray.push({answer: temp, isCorrect: false})
+            }
+            this.optionArray = shuffle(this.optionArray)
+
+            for (let loop = 0; loop < 4; loop++) {
+              this.questionList[loop].answer = this.optionArray[loop].answer
+              this.questionList[loop].isCorrect = this.optionArray[loop].isCorrect
+            }
+          },
+          correctAnw: function(e, data) {
+            let temp = false;
+            for (let loop = 0; loop < 4; loop++) {
+              if ($('.q')[loop].style["background-color"].includes("rgb")) {
+                temp = true;
+              }
+            }
+            if (temp === false) {
+              if (data.isCorrect) {
+                this.correctTotal += 1;
+                if (e.target.localName == "p") {
+                  $(e.target.parentElement).css("background-color", "#2ac548");
+                } else {
+                  $(e.target).css("background-color", "#2ac548");
+                }
+                this.correctlyAnw++
+                this.audio.correct.play();
+              } else {
+                if (e.target.localName == "p") {
+                  $(e.target.parentElement).css("background-color", "#dc2727");
+                } else {
+                  $(e.target).css("background-color", "#dc2727");
+                }
+                for (let loop = 0; loop < 4; loop++) {
+                  [...document.getElementsByClassName("q")].filter(ans => ans.innerHTML.includes(this.answer))[0].style.background="#2ac548"
+                };
+                this.audio.incorrect.play();
+              }
+              this.animation.pause()
+              this.animation.seek(this.timerCooldown - 1)
+
+              $(".nextContainer").css("background-image", "linear-gradient(to top, #3b8dff, #6400e0)")
+              $(".nextContainer p").css("color", "white")
+            }
+          },
+          rdnOperator: function() {
+            let temp = ["+","-","×","÷"]
+            let oper = temp[Math.floor(Math.random() * (temp.length))]
+            this.operator = oper
+          },
+          tempRdnNumberExclusive: function(answer, avoid) {
+            let answer21 = Math.floor(Math.random() * ((answer+8) - (answer-8) + 1)) + (answer-8)
+            if (avoid.map(x=>x.answer).includes(answer21) || answer21 < 1){
+              return this.tempRdnNumberExclusive(answer, avoid)
+            }
+
+            return answer21
+          },
+          divideNumberExclusive: function(answer) {
+            if (answer % 1 === 0) {
+              return answer;
+            }
+            this.generateRdnQuestion();
+            return this.divideNumberExclusive((this.numberOne/this.numberTwo));
+          },
+          generateRdnQuestion: function() {
+            this.numberOne = Math.floor(Math.random() * (12 - 5 + 1)) + 5;
+            this.numberTwo = Math.floor(Math.random() * (12 - 5 + 1)) + 5;
+          },
+          minusExlusive: function(answer) {
+            if (answer > 0) {
+              return answer;
+            }
+            this.generateRdnQuestion();
+            return this.minusExlusive((this.numberOne-this.numberTwo));
+          },
+          backHomeClick: function() {
+            location.reload();
+          },
+          startAnimation: function() {
+            vm = this
+            this.animation = anime({
+              targets: document.getElementsByClassName("timer"),
+              width: ["0","100%"],
+              duration: this.timerCooldown,
+              easing: 'linear',
+              complete: () => {
+                vm.timerRunOut();
+              }
+            })
+
+            this.animation.play()
+          },
+          timerRunOut: function() {
+            this.timedOut = true;
+            setTimeout( () => anime({
+              targets: document.getElementsByClassName("material-icons"),
+              rotate: [
+                {value: '3deg'},
+                {value: '-3deg'},
+                {value: '3deg'},
+                {value: '-3deg'},
+                {value: '3deg'},
+                {value: '-3deg'},
+                {value: '3deg'},
+                {value: '-3deg'},
+                {value: '3deg'},
+                {value: '-3deg'}
+            ],
+              duration: 1000
+            }), 1)
+
+            setTimeout( () => this.timedOut = false, 1000)
+
+            console.log("WOWZERS")
+
+            for (let loop = 0; loop < 4; loop++) {
+              [...document.getElementsByClassName("q")].filter(ans => ans.innerHTML.includes(this.answer))[0].style.background="#2ac548"
+            };
+            $(".nextContainer").css("background-image", "linear-gradient(to top, #3b8dff, #6400e0)")
+            $(".nextContainer p").css("color", "white")
+          },
+          nextQuestion: function(e, data) {
+            let temp = false;
+            for (let loop = 0; loop < 4; loop++) {
+              if ($('.q')[loop].style["background-color"].includes("rgb")) {
+                temp = true;
+              }
+            }
+            if (temp === true) {
+
+              this.questionNr += 1;
+              if (this.questionNr == 11) {
+                this.screenOpt = "end"
+                this.questionNr = 1;
+              } else {
+                this.difficulty("clicked", {timer: this.timer, cooldown: this.timerCooldown});
+                $(".q").css("background-color", "white")
+                $(".nextContainer").css("background-image", "none")
+                $(".nextContainer p").css("color", "black")
+              }
+            }
+
+            if (this.timer) {
+              setTimeout( () => this.animation.restart(), 1)
+            }
+
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
